@@ -66,7 +66,7 @@
 
       .weather-temperature img {
         margin-right: 10px;
-        width: 48px; /* Increased icon size */
+        width: 48px;
         height: 48px;
       }
 
@@ -97,21 +97,21 @@
       }
 
       .weather-forecast-date {
-        font-size: 14px; /* Reduced font size for days of the week */
+        font-size: 14px;
         color: black;
-        font-weight: bold; /* Added color to day labels */
+        font-weight: bold;
       }
 
       .weather-forecast-temperatures {
-        font-size: 14px; /* Reduced font size for temperatures */
+        font-size: 14px;
       }
 
       .weather-forecast-temperature-max {
-        color: blue; /* Added color to maximum temperatures */
+        color: blue;
       }
 
       .weather-forecast-temperature-min {
-        color: aqua; /* Added color to minimum temperatures */
+        color: aqua;
       }
     </style>
   </head>
@@ -148,9 +148,7 @@
             </div>
           </div>
           <div class="forecast">
-            <div class="row" id="forecast">
-              <!-- Forecast data will be inserted here using JavaScript -->
-            </div>
+            <div class="row" id="forecast"></div>
           </div>
         </div>
         <small>
@@ -204,7 +202,6 @@
 
             document.getElementById("icon").src = iconUrl;
 
-            // Update forecast data for the same city
             getWeatherForecast(city);
           })
           .catch(function (error) {
@@ -251,7 +248,6 @@
 
                 document.getElementById("icon").src = iconUrl;
 
-                // Update forecast data for the same city
                 getWeatherForecast(weatherData.city);
               })
               .catch(function (error) {
@@ -300,7 +296,6 @@
           });
       }
 
-      // Initial data load for Nairobi
       getWeatherData("Nairobi");
     </script>
   </body>
