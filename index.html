@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather App</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+    <style>
+      body,
+      h1,
+      ul,
+      li {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      .container {
+        margin: 0 auto;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .weather-app-wrapper {
+        background-color: #f4f4f4;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .weather-app {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      .overview h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+
+      .overview ul {
+        list-style: none;
+      }
+
+      .overview ul li {
+        font-size: 14px;
+        color: #777;
+        margin-bottom: 5px;
+      }
+
+      .weather-temperature {
+        margin-top: 20px;
+      }
+
+      .weather-temperature img {
+        margin-right: 10px;
+      }
+
+      .weather-temperature strong {
+        font-size: 24px;
+      }
+
+      .units {
+        font-size: 18px;
+      }
+
+      #button1 {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        margin-top: 20px;
+        border-radius: 5px;
+      }
+
+      #button1:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <form>
+        <input type="search" placeholder="Enter city" />
+        <input type="submit" value="Search City" />
+      </form>
+      <div class="weather-app-wrapper">
+        <div class="weather-app">
+          <div class="overview">
+            <h1 id="city">Nairobi, Kenya</h1>
+            <ul>
+              <li>Last updated: <span id="date">Friday, 3:02 PM</span></li>
+              <li id="description">Mostly cloudy</li>
+            </ul>
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <div class="clearfix weather-temperature">
+                <img src="" alt="Weather Icon" id="icon" class="float-left" />
+                <div class="float-left">
+                  <strong id="temperature">16</strong
+                  ><span class="units"> °C</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <ul>
+                <li>Humidity: <span id="humidity">71</span>%</li>
+                <li>Wind: <span id="wind">13</span> m/h</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <small>
+          <a
+            href="https://github.com/wecodeschool/vanilla-weather-app"
+            target="_blank"
+            >Open-source code</a
+          >
+          by Wangechi Karimi
+        </small>
+      </div>
+      <button id="button1">Get Current Location</button>
+    </div>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+      let apiKey = "2tdf55dc4abb13bdo5f6778fe50d86c4"; // Move the apiKey declaration to a higher scope
+
+      function getWeatherData(city) {
+        const apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=metric`;
+
+        axios
+          .get(apiUrl)
+          .then(function (response) {
+            const weatherData = response.data;
+            if (
+              weatherData &&
+              weatherData.condition &&
+              weatherData.condition.description
+            ) {
+              document.getElementById("description").textContent =
+                weatherData.condition.description;
+            } else {
+              document.getElementById("description").textContent =
+                "Weather data not available";
+            }
+            document.getElementById("city").textContent =
+              weatherData.city + ", " + weatherData.country;
+            const date = new Date(weatherData.time * 1000);
+            document.getElementById("date").textContent = date.toLocaleString();
+            document.getElementById("temperature").textContent =
+              weatherData.temperature.current;
+
+            // Update the humidity and wind values
+            document.getElementById("humidity").textContent =
+              weatherData.temperature.humidity;
+            document.getElementById("wind").textContent =
+              weatherData.wind.speed;
+
+            // Retrieve the weather icon code from the API response
+            const weatherIconCode = weatherData.condition.icon;
+
+            // Construct the URL for the weather icon image
+            const iconUrl = `https://shecodes-assets.s3.amazonaws.com/api/weather/icons/${weatherIconCode}.png`;
+
+            // Update the src attribute of the <img> element with the weather icon
+            document.getElementById("icon").src = iconUrl;
+          })
+          .catch(function (error) {
+            console.error("Error fetching weather data:", error);
+          });
+      }
+
+      document
+        .querySelector("form")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          const city = document.querySelector('input[type="search"]').value;
+          getWeatherData(city);
+        });
+
+      document.getElementById("button1").addEventListener("click", function () {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function (position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            const apiUrl = `https://api.shecodes.io/weather/v1/current?lat=${latitude}&lon=${longitude}&key=${apiKey}&units=metric`;
+
+            axios
+              .get(apiUrl)
+              .then(function (response) {
+                const weatherData = response.data;
+                document.getElementById("city").textContent =
+                  weatherData.city + ", " + weatherData.country;
+                const date = new Date(weatherData.time * 1000);
+                document.getElementById("date").textContent =
+                  date.toLocaleString();
+                document.getElementById("description").textContent =
+                  weatherData.condition.description;
+                document.getElementById("temperature").textContent =
+                  weatherData.temperature.current;
+
+                // Update the humidity and wind values
+                document.getElementById("humidity").textContent =
+                  weatherData.temperature.humidity;
+                document.getElementById("wind").textContent =
+                  weatherData.wind.speed;
+
+                // Retrieve the weather icon code from the API response
+                const weatherIconCode = weatherData.condition.icon;
+
+                // Construct the URL for the weather icon image
+                const iconUrl = `https://shecodes-assets.s3.amazonaws.com/api/weather/icons/${weatherIconCode}.png`;
+
+                // Update the src attribute of the <img> element with the weather icon
+                document.getElementById("icon").src = iconUrl;
+              })
+              .catch(function (error) {
+                console.error("Error fetching weather data:", error);
+              });
+          });
+        } else {
+          alert("Geolocation is not supported by your browser.");
+        }
+      });
+
+      getWeatherData("Nairobi");
+    </script>
+  </body>
+</html>
