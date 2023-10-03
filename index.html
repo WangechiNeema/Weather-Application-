@@ -66,6 +66,8 @@
 
       .weather-temperature img {
         margin-right: 10px;
+        width: 48px; /* Increased icon size */
+        height: 48px;
       }
 
       .weather-temperature strong {
@@ -88,6 +90,28 @@
 
       #button1:hover {
         background-color: #0056b3;
+      }
+
+      .forecast {
+        margin-top: 20px;
+      }
+
+      .weather-forecast-date {
+        font-size: 14px; /* Reduced font size for days of the week */
+        color: black;
+        font-weight: bold; /* Added color to day labels */
+      }
+
+      .weather-forecast-temperatures {
+        font-size: 14px; /* Reduced font size for temperatures */
+      }
+
+      .weather-forecast-temperature-max {
+        color: blue; /* Added color to maximum temperatures */
+      }
+
+      .weather-forecast-temperature-min {
+        color: aqua; /* Added color to minimum temperatures */
       }
     </style>
   </head>
@@ -123,6 +147,11 @@
               </ul>
             </div>
           </div>
+          <div class="forecast">
+            <div class="row" id="forecast">
+              <!-- Forecast data will be inserted here using JavaScript -->
+            </div>
+          </div>
         </div>
         <small>
           <a
@@ -138,7 +167,7 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <script>
-      let apiKey = "2tdf55dc4abb13bdo5f6778fe50d86c4"; // Move the apiKey declaration to a higher scope
+      let apiKey = "2tdf55dc4abb13bdo5f6778fe50d86c4";
 
       function getWeatherData(city) {
         const apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=metric`;
@@ -165,20 +194,18 @@
             document.getElementById("temperature").textContent =
               weatherData.temperature.current;
 
-            // Update the humidity and wind values
             document.getElementById("humidity").textContent =
               weatherData.temperature.humidity;
             document.getElementById("wind").textContent =
               weatherData.wind.speed;
 
-            // Retrieve the weather icon code from the API response
             const weatherIconCode = weatherData.condition.icon;
-
-            // Construct the URL for the weather icon image
             const iconUrl = `https://shecodes-assets.s3.amazonaws.com/api/weather/icons/${weatherIconCode}.png`;
 
-            // Update the src attribute of the <img> element with the weather icon
             document.getElementById("icon").src = iconUrl;
+
+            // Update forecast data for the same city
+            getWeatherForecast(city);
           })
           .catch(function (error) {
             console.error("Error fetching weather data:", error);
@@ -214,20 +241,18 @@
                 document.getElementById("temperature").textContent =
                   weatherData.temperature.current;
 
-                // Update the humidity and wind values
                 document.getElementById("humidity").textContent =
                   weatherData.temperature.humidity;
                 document.getElementById("wind").textContent =
                   weatherData.wind.speed;
 
-                // Retrieve the weather icon code from the API response
                 const weatherIconCode = weatherData.condition.icon;
-
-                // Construct the URL for the weather icon image
                 const iconUrl = `https://shecodes-assets.s3.amazonaws.com/api/weather/icons/${weatherIconCode}.png`;
 
-                // Update the src attribute of the <img> element with the weather icon
                 document.getElementById("icon").src = iconUrl;
+
+                // Update forecast data for the same city
+                getWeatherForecast(weatherData.city);
               })
               .catch(function (error) {
                 console.error("Error fetching weather data:", error);
@@ -238,6 +263,44 @@
         }
       });
 
+      function getWeatherForecast(city) {
+        const forecastApiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}`;
+
+        axios
+          .get(forecastApiUrl)
+          .then(function (response) {
+            const forecastData = response.data.daily;
+            const forecastContainer = document.getElementById("forecast");
+            forecastContainer.innerHTML = "";
+
+            forecastData.forEach((dayData) => {
+              const date = new Date(dayData.time * 1000);
+              const dayOfWeek = date.toLocaleDateString("en-US", {
+                weekday: "short",
+              });
+              const maxTemp = dayData.temperature.maximum.toFixed(1);
+              const minTemp = dayData.temperature.minimum.toFixed(1);
+
+              const forecastDay = document.createElement("div");
+              forecastDay.classList.add("col-2");
+              forecastDay.innerHTML = `
+                <div class="weather-forecast-date">${dayOfWeek}</div>
+                <img src="${dayData.condition.icon_url}" alt="" width="42" />
+                <div class="weather-forecast-temperatures">
+                  <span class="weather-forecast-temperature-max">${maxTemp}°</span>
+                  <span class="weather-forecast-temperature-min">${minTemp}°</span>
+                </div>
+              `;
+
+              forecastContainer.appendChild(forecastDay);
+            });
+          })
+          .catch(function (error) {
+            console.error("Error fetching forecast data:", error);
+          });
+      }
+
+      // Initial data load for Nairobi
       getWeatherData("Nairobi");
     </script>
   </body>
