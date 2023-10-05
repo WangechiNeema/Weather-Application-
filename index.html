@@ -189,8 +189,10 @@
               weatherData.city + ", " + weatherData.country;
             const date = new Date(weatherData.time * 1000);
             document.getElementById("date").textContent = date.toLocaleString();
-            document.getElementById("temperature").textContent =
-              weatherData.temperature.current;
+
+            // Round off the current temperature to the nearest whole number
+            const currentTemp = Math.round(weatherData.temperature.current);
+            document.getElementById("temperature").textContent = currentTemp;
 
             document.getElementById("humidity").textContent =
               weatherData.temperature.humidity;
@@ -235,8 +237,11 @@
                   date.toLocaleString();
                 document.getElementById("description").textContent =
                   weatherData.condition.description;
+
+                // Round off the current temperature to the nearest whole number
+                const currentTemp = Math.round(weatherData.temperature.current);
                 document.getElementById("temperature").textContent =
-                  weatherData.temperature.current;
+                  currentTemp;
 
                 document.getElementById("humidity").textContent =
                   weatherData.temperature.humidity;
@@ -274,8 +279,8 @@
               const dayOfWeek = date.toLocaleDateString("en-US", {
                 weekday: "short",
               });
-              const maxTemp = dayData.temperature.maximum.toFixed(1);
-              const minTemp = dayData.temperature.minimum.toFixed(1);
+              const maxTemp = Math.round(dayData.temperature.maximum);
+              const minTemp = Math.round(dayData.temperature.minimum);
 
               const forecastDay = document.createElement("div");
               forecastDay.classList.add("col-2");
